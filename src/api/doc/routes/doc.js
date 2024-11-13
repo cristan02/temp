@@ -1,9 +1,25 @@
-'use strict';
+"use strict";
 
 /**
  * doc router
  */
 
-const { createCoreRouter } = require('@strapi/strapi').factories;
+const { createCoreRouter } = require("@strapi/strapi").factories;
 
-module.exports = createCoreRouter('api::doc.doc');
+module.exports = createCoreRouter("api::doc.doc", {
+  config: {
+    findOne: {
+      middlewares: ["api::doc.has-access"],
+    },
+    update: {
+      middlewares: ["api::doc.has-access"],
+    },
+    delete: {
+      middlewares: ["api::doc.has-access"],
+    },
+
+    create: {
+      middlewares: ["api::doc.after-create"],
+    },
+  },
+});

@@ -391,12 +391,12 @@ export interface ApiAccessAccess extends Struct.CollectionTypeSchema {
       'api::access.access'
     > &
       Schema.Attribute.Private;
-    permission: Schema.Attribute.Enumeration<['read', 'write', 'owner']>;
+    permission: Schema.Attribute.Enumeration<['edit', 'view']>;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    users_permissions_user: Schema.Attribute.Relation<
+    user: Schema.Attribute.Relation<
       'oneToOne',
       'plugin::users-permissions.user'
     >;
@@ -465,7 +465,8 @@ export interface ApiDocDoc extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
-    visibility: Schema.Attribute.Enumeration<['open', 'closed']>;
+    visibility: Schema.Attribute.Enumeration<['open', 'closed']> &
+      Schema.Attribute.DefaultTo<'closed'>;
   };
 }
 

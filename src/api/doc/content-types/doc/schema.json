@@ -41,7 +41,11 @@
     },
     "visibility": {
       "type": "enumeration",
-      "enum": ["open", "closed"]
+      "enum": [
+        "open",
+        "closed"
+      ],
+      "default": "closed"
     }
   }
 }

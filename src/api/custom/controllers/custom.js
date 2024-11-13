@@ -39,7 +39,7 @@ module.exports = {
 
     // loop through starred and find doc from doc
     const docs = await Promise.all(
-      starred.map(async (id) => {
+      (starred || []).map(async (id) => {
         const doc = await strapi.documents("api::doc.doc").findOne({
           documentId: id,
         });
@@ -52,15 +52,20 @@ module.exports = {
   },
 
   async getStarredDoc(ctx) {
-    const { user } = ctx.state;
-    const { starred } = user;
-    const { documentId } = ctx.params;
+    try {
+      const { user } = ctx.state;
+      const { starred } = user;
+      const { documentId } = ctx.params;
 
-    if (!starred.includes(documentId)) {
-      return ctx.send(false, 200);
+      if (!(starred || []).includes(documentId)) {
+        return ctx.send(false, 200);
+      }
+
+      return ctx.send(true, 200);
+    } catch (error) {
+      console.log(error.message);
+      return ctx.internalServerError();
     }
-
-    return ctx.send(true, 200);
   },
 
   async postStarredDoc(ctx) {
@@ -103,31 +108,36 @@ module.exports = {
   },
 
   async getStarredAndRecents(ctx) {
-    const { user } = ctx.state;
-    const { starred, recents } = user;
+    try {
+      const { user } = ctx.state;
+      const { starred, recents } = user;
 
-    // loop through starred and find doc from doc
-    const starredDocs = await Promise.all(
-      starred.map(async (id) => {
-        const doc = await strapi.documents("api::doc.doc").findOne({
-          documentId: id,
-        });
+      // loop through starred and find doc from doc
+      const starredDocs = await Promise.all(
+        (starred || []).map(async (id) => {
+          const doc = await strapi.documents("api::doc.doc").findOne({
+            documentId: id,
+          });
 
-        return doc;
-      })
-    );
+          return doc;
+        })
+      );
 
-    // loop through recents and find doc from doc
-    const recentsDocs = await Promise.all(
-      recents.map(async (id) => {
-        const doc = await strapi.documents("api::doc.doc").findOne({
-          documentId: id,
-        });
+      // loop through recents and find doc from doc
+      const recentsDocs = await Promise.all(
+        (recents || []).map(async (id) => {
+          const doc = await strapi.documents("api::doc.doc").findOne({
+            documentId: id,
+          });
 
-        return doc;
-      })
-    );
+          return doc;
+        })
+      );
 
-    return ctx.send({ starred: starredDocs, recents: recentsDocs }, 200);
+      return ctx.send({ starred: starredDocs, recents: recentsDocs }, 200);
+    } catch (error) {
+      console.log(error.message);
+      return ctx.internalServerError();
+    }
   },
 };

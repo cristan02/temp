@@ -18,14 +18,17 @@
       "target": "api::doc.doc",
       "inversedBy": "accesses"
     },
-    "users_permissions_user": {
+    "user": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
     },
     "permission": {
       "type": "enumeration",
-      "enum": ["read", "write", "owner"]
+      "enum": [
+        "edit",
+        "view"
+      ]
     }
   }
 }
