@@ -8,6 +8,9 @@ const { createCoreRouter } = require("@strapi/strapi").factories;
 
 module.exports = createCoreRouter("api::doc.doc", {
   config: {
+    find: {
+      middlewares: ["api::doc.get-docs"],
+    },
     findOne: {
       middlewares: ["api::doc.has-access"],
     },

@@ -33,7 +33,6 @@ module.exports = {
     });
 
     io.on("connection", (socket) => {
-      console.log("New client connected");
       const userid = socket.handshake.headers["userid"];
       const username = socket.handshake.headers["username"];
       const auth = socket.handshake.headers["auth"];
@@ -67,7 +66,6 @@ module.exports = {
           snapshot = snapshot;
         }
         latestChanges = snapshot.content;
-        console.log("snapshot", snapshot.documentId);
 
         // find from db and send to client
         socket.emit("load-document", snapshot);
@@ -103,6 +101,14 @@ module.exports = {
 
         socket.on("send-cursor", (data) => {
           socket.broadcast.to(id).emit("receive-cursor", data, id);
+        });
+      });
+
+      socket.on("chat-room", async (id) => {
+        socket.join(id);
+
+        socket.on("send-message", (message) => {
+          io.to(id).emit("receive-message", message);
         });
       });
     });
