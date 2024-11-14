@@ -46,20 +46,16 @@ module.exports = {
         const numClients = room ? room.size : 0;
 
         //fix below
-        let snapshot = await strapi.db.query("api::snapshot.snapshot").findOne({
-          populate: {
-            doc: {
-              documentId: id,
-            },
-          },
-          orderBy: { createdAt: "desc" },
+        const doc = await strapi.documents("api::doc.doc").findMany({
+          populate: ["snapshots"],
         });
+        let snapshot = doc.snapshots?.[doc.snapshots.length - 1] || null;
 
         if (numClients === 1) {
           snapshot = await strapi.documents("api::snapshot.snapshot").create({
             data: {
               doc: id,
-              content: snapshot ? snapshot.content : "",
+              content: snapshot ? snapshot.content : {},
             },
           });
         } else {
@@ -77,7 +73,7 @@ module.exports = {
           strapi.documents("api::delta.delta").create({
             data: {
               doc: id,
-              snapshot: snapshotId,
+              snapshot: snapshot.documentId,
               user: userid,
               content: delta,
             },
@@ -97,6 +93,20 @@ module.exports = {
                 data: { content: content },
               });
           }
+        });
+
+        socket.on("send-restore", async (data) => {
+          const { content } = data;
+          latestChanges = content;
+
+          const entry = await strapi
+            .documents("api::snapshot.snapshot")
+            .update({
+              documentId: snapshot.documentId,
+              data: { content: content },
+            });
+
+          io.to(id).emit("recieve-restore", entry);
         });
 
         socket.on("send-cursor", (data) => {

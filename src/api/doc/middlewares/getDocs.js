@@ -14,7 +14,13 @@ module.exports = (config, { strapi }) => {
 
       const accesses = await strapi.documents("api::access.access").findMany({
         populate: {
-          doc: true,
+          doc: {
+            filters: {
+              documentId: {
+                $notNull: true,
+              },
+            },
+          },
           user: {
             filters: {
               documentId: user.documentId,
@@ -23,12 +29,19 @@ module.exports = (config, { strapi }) => {
         },
       });
 
-      const entries = accesses.map((access) => access.doc);
+      const entries = accesses
+        .map((access) => {
+          if (access?.doc && access?.user?.documentId === user?.documentId) {
+            return access.doc;
+          } else {
+            return null;
+          }
+        })
+        .filter((entry) => entry !== null);
 
       return ctx.send({ data: entries }, 200);
     }
 
-    console.log("getDocs middleware");
     return next();
   };
 };
